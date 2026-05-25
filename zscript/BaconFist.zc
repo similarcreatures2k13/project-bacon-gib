@@ -1,0 +1,100 @@
+class BaconDukeFist : Weapon
+{
+    bool lastWasRight;
+
+    Default
+    {
+        Weapon.SelectionOrder 22;
+        Weapon.Kickback 80;
+        Obituary "%k beat %o to death.";
+        +WEAPON.NOALERT;
+        +WEAPON.WIMPY_WEAPON;
+        +WEAPON.MELEEWEAPON;
+        Tag "Fists";
+    }
+    States
+    {
+    Select:
+        P1NA A 1 A_Raise;
+        Loop;
+    Deselect:
+        P1NA A 1 A_Lower;
+        Loop;
+    Ready:
+        P1NA A 1 A_WeaponReady;
+        Loop;
+    Fire:
+        TNT1 A 0
+        {
+            let w = BaconDukeFist(invoker);
+            if (w.lastWasRight)
+            {
+                w.lastWasRight = false;
+                return ResolveState("LeftJab");
+            }
+            else
+            {
+                w.lastWasRight = true;
+                return ResolveState("RightJab");
+            }
+        }
+    RightJab:
+        P1NA AB 1;
+        P1NA C 1 A_CustomPunch(20, true, 0, "BaconFistPuff", 80);
+        P1NA DEFGH 1;
+        Goto Ready;
+    LeftJab:
+        P1NB AB 1;
+        P1NB C 1 A_CustomPunch(20, true, 0, "BaconFistPuff", 80);
+        P1NB DEFGH 1;
+        Goto Ready;
+    AltFire:
+        TNT1 A 0
+        {
+            let w = BaconDukeFist(invoker);
+            if (w.lastWasRight)
+            {
+                w.lastWasRight = false;
+                return ResolveState("LeftHook");
+            }
+            else
+            {
+                w.lastWasRight = true;
+                return ResolveState("RightHook");
+            }
+        }
+    RightHook:
+        P1ND ABCDEF 1;
+        P1ND G 1 A_CustomPunch(40, true, 0, "BaconFistPuff", 120);
+        P1ND HIJKLM 1;
+        P1ND NOPQRSTUVW 0;
+        Goto Ready;
+    LeftHook:
+        P1NC ABCDEF 1;
+        P1NC G 1 A_CustomPunch(40, true, 0, "BaconFistPuff", 120);
+        P1NC HIJKLM 1;
+        P1NC NOPQRSTUVW 0;
+        Goto Ready;
+    }
+}
+
+class BaconFistPuff : Actor
+{
+    Default
+    {
+        +NOBLOCKMAP;
+        +NOGRAVITY;
+        +NOINTERACTION;
+        +PUFFONACTORS;
+        DamageType "BaconFist";
+        AttackSound "duke/kick";
+        RenderStyle "Translucent";
+        Alpha 0.6;
+    }
+    States
+    {
+    Spawn:
+        BLOD AB 4;
+        Stop;
+    }
+}

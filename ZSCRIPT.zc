@@ -1,3 +1,4 @@
 version "4.10.0"
 
 #include "zscript/BaconExecution.zc"
+#include "zscript/BaconFist.zc"

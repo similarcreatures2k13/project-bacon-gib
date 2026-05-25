@@ -2,6 +2,20 @@
 
 class BaconGoreHandler : EventHandler
 {
+    override void WorldTick()
+    {
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (playeringame[i] && players[i].mo)
+            {
+                if (!players[i].mo.FindInventory("BaconDukeFist"))
+                {
+                    players[i].mo.GiveInventory("BaconDukeFist", 1);
+                }
+            }
+        }
+    }
+
     override void WorldThingDamaged(WorldEvent e)
     {
         if (!e.Thing || !e.Thing.bIsMonster) return;
@@ -34,8 +48,6 @@ class BaconGoreHandler : EventHandler
             }
         }
 
-        Console.Printf("BACON: %s DIED | Staggered: %d | MeleeRange: %d | HP: %d", e.Thing.GetClassName(), wasStaggered, wasMeleeKill, e.Thing.Health);
-
         Vector3 pos = e.Thing.Pos;
         double h = e.Thing.Height;
 
@@ -43,7 +55,6 @@ class BaconGoreHandler : EventHandler
         {
             Console.Printf("BACON: EXECUTION TRIGGERED!");
 
-            // Replace the death entirely - gib the corpse
             e.Thing.bNoGravity = true;
             e.Thing.A_SetRenderStyle(0.0, STYLE_None);
 
@@ -74,7 +85,6 @@ class BaconGoreHandler : EventHandler
             return;
         }
 
-        // Regular overkill
         if (e.Thing.Health < -30)
         {
             for (int i = 0; i < 5; i++)
@@ -87,7 +97,6 @@ class BaconGoreHandler : EventHandler
             }
         }
 
-        // Random dismemberment
         if (frandom(0, 1.0) > 0.4)
         {
             let head = Actor.Spawn("BaconSeveredHead", (pos.x, pos.y, pos.z + h * 0.8));

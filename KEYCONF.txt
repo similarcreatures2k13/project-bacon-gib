@@ -1,0 +1,2 @@
+alias bacon_fist "use BaconDukeFist"
+defaultbind f "bacon_fist"
