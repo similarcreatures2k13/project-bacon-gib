@@ -1,0 +1,32 @@
+class BaconTestFist : Weapon
+{
+    Default
+    {
+        Weapon.SelectionOrder 21;
+        +WEAPON.NOALERT;
+        +WEAPON.WIMPY_WEAPON;
+        +WEAPON.MELEEWEAPON;
+        Tag "TestFist";
+    }
+    States
+    {
+    Select:
+        P1ND A 1 A_Raise;
+        Loop;
+    Deselect:
+        P1ND A 1 A_Lower;
+        Loop;
+    Ready:
+        P1ND A 1 A_WeaponReady;
+        Loop;
+    Fire:
+        P1ND A 3 { Console.Printf("TEST: P1ND A"); }
+        P1ND B 3 { Console.Printf("TEST: P1ND B"); }
+        P1ND C 3 { Console.Printf("TEST: P1ND C"); }
+        P1ND D 3 { Console.Printf("TEST: P1ND D"); }
+        P1ND E 3 { Console.Printf("TEST: P1ND E"); }
+        P1ND F 3 { Console.Printf("TEST: P1ND F"); }
+        P1ND G 3 { Console.Printf("TEST: P1ND G"); }
+        Goto Ready;
+    }
+}

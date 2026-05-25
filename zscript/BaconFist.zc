@@ -1,12 +1,16 @@
 class BaconDukeFist : Weapon
 {
     bool lastWasRight;
+    Actor grabTarget;
+    double savedAngle;
+    double savedPitch;
 
     Default
     {
         Weapon.SelectionOrder 22;
+        Weapon.SlotNumber 0;
         Weapon.Kickback 80;
-        Obituary "%k beat %o to death.";
+        Obituary "%k ripped %o apart.";
         +WEAPON.NOALERT;
         +WEAPON.WIMPY_WEAPON;
         +WEAPON.MELEEWEAPON;
@@ -24,7 +28,7 @@ class BaconDukeFist : Weapon
         P1NA A 1 A_WeaponReady;
         Loop;
     Fire:
-        TNT1 A 0
+        P1NA A 0
         {
             let w = BaconDukeFist(invoker);
             if (w.lastWasRight)
@@ -38,6 +42,7 @@ class BaconDukeFist : Weapon
                 return ResolveState("RightJab");
             }
         }
+        Goto Ready;
     RightJab:
         P1NA AB 1;
         P1NA C 1 A_CustomPunch(20, true, 0, "BaconFistPuff", 80);
@@ -49,7 +54,7 @@ class BaconDukeFist : Weapon
         P1NB DEFGH 1;
         Goto Ready;
     AltFire:
-        TNT1 A 0
+        P1NA A 0
         {
             let w = BaconDukeFist(invoker);
             if (w.lastWasRight)
@@ -63,18 +68,215 @@ class BaconDukeFist : Weapon
                 return ResolveState("RightHook");
             }
         }
+        Goto Ready;
     RightHook:
-        P1ND ABCDEF 1;
-        P1ND G 1 A_CustomPunch(40, true, 0, "BaconFistPuff", 120);
+        P1ND A 1;
+        P1ND B 1;
+        P1ND C 1;
+        P1ND D 1;
+        P1ND E 1;
+        P1ND F 1;
+        // Stagger check HERE — after sprites are already rendering
+        P1ND G 1
+        {
+            FTranslatedLineTarget t;
+            invoker.owner.LineAttack(angle, 256, pitch, 0, "None", "BaconCheckPuff", LAF_NOINTERACT, t);
+            if (t.linetarget && t.linetarget.FindInventory("BaconStaggerToken"))
+            {
+                invoker.grabTarget = t.linetarget;
+                Console.Printf("BACON: STAGGERED — GRABBING");
+                return ResolveState("ExecHold");
+            }
+            A_CustomPunch(40, true, 0, "BaconFistPuff", 120);
+            return ResolveState(null);
+        }
         P1ND HIJKLM 1;
         P1ND NOPQRSTUVW 0;
         Goto Ready;
     LeftHook:
-        P1NC ABCDEF 1;
-        P1NC G 1 A_CustomPunch(40, true, 0, "BaconFistPuff", 120);
+        P1NC A 1;
+        P1NC B 1;
+        P1NC C 1;
+        P1NC D 1;
+        P1NC E 1;
+        P1NC F 1;
+        // Stagger check HERE
+        P1NC G 1
+        {
+            FTranslatedLineTarget t;
+            invoker.owner.LineAttack(angle, 256, pitch, 0, "None", "BaconCheckPuff", LAF_NOINTERACT, t);
+            if (t.linetarget && t.linetarget.FindInventory("BaconStaggerToken"))
+            {
+                invoker.grabTarget = t.linetarget;
+                Console.Printf("BACON: STAGGERED — GRABBING");
+                return ResolveState("ExecHold");
+            }
+            A_CustomPunch(40, true, 0, "BaconFistPuff", 120);
+            return ResolveState(null);
+        }
         P1NC HIJKLM 1;
         P1NC NOPQRSTUVW 0;
         Goto Ready;
+    ExecHold:
+        G000 A 0
+        {
+            if (invoker.grabTarget)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.Speed = 0;
+                mo.bNOPAIN = true;
+                mo.bINCOMBAT = true;
+                mo.bSTANDSTILL = true;
+                mo.Tics = -1;
+            }
+            invoker.savedAngle = angle;
+            invoker.savedPitch = pitch;
+        }
+        G000 A 2
+        {
+            A_PlaySound("duke/kick", CHAN_BODY);
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G000 B 2
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G000 C 2
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G000 D 2
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G000 E 8
+        {
+            A_SetBlend("FF0000", 0.4, 35);
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            Console.Printf("BACON: GRABBING...");
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.A_SpawnItemEx("BaconBloodBurst", 0, 0, 24);
+                mo.A_SpawnItemEx("BaconBloodBurst", 0, 0, 32);
+            }
+        }
+        G000 F 8
+        {
+            A_PlaySound("misc/gibbed", CHAN_BODY);
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.A_SpawnItemEx("BaconBloodBurst", 0, 0, 16);
+            }
+        }
+        G000 G 8
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.A_SpawnItemEx("BaconMeatChunk", 0, 0, 32, frandom(-6,6), frandom(-6,6), frandom(4,10));
+                mo.A_SpawnItemEx("BaconMeatChunk", 0, 0, 24, frandom(-6,6), frandom(-6,6), frandom(4,10));
+            }
+        }
+        G000 H 8
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            Console.Printf("BACON: RIPPING...");
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.A_SpawnItemEx("BaconMeatChunk", 0, 0, 40, frandom(-6,6), frandom(-6,6), frandom(4,10));
+                mo.A_SpawnItemEx("BaconBloodBurst", 0, 0, 20);
+            }
+        }
+        G000 I 6
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G000 J 6
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G000 K 6
+        {
+            A_SetBlend("FF0000", 0.9, 25);
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.bNOPAIN = false;
+                mo.bINCOMBAT = false;
+                mo.bSTANDSTILL = false;
+                mo.Tics = 1;
+                mo.DamageMobj(self, self, 50000, "BaconExecution");
+            }
+            A_PlaySound("bacon/execution", CHAN_VOICE, 1.0);
+            Console.Printf("BACON: TORN APART!");
+        }
+        G000 L 5;
+        G000 M 5;
+        G000 N 5
+        {
+            invoker.grabTarget = null;
+        }
+        Goto Ready;
+    }
+}
+
+class BaconCheckPuff : Actor
+{
+    Default
+    {
+        +NOBLOCKMAP;
+        +NOGRAVITY;
+        +NOINTERACTION;
+        +PUFFONACTORS;
+        RenderStyle "None";
+    }
+    States
+    {
+    Spawn:
+        TNT1 A 1;
+        Stop;
+    }
+}
+
+class BaconExecPuff : Actor
+{
+    Default
+    {
+        +NOBLOCKMAP;
+        +NOGRAVITY;
+        +NOINTERACTION;
+        +PUFFONACTORS;
+        DamageType "BaconExecution";
+        AttackSound "misc/gibbed";
+        RenderStyle "None";
+    }
+    States
+    {
+    Spawn:
+        TNT1 A 1;
+        Stop;
     }
 }
 
