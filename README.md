@@ -22,18 +22,22 @@ An operative discovered that certain... *subjects*... were not receiving the tre
 This project rectifies that oversight.
 
 ## OPERATIONAL STATUS
+```
 PHASE 1: ASSEMBLE ████████░░ 80%
 └── Wire existing assets into gore framework
 └── Establish target subject: [REDACTED — PORCINE UNIT]
 └── Validate extraction on single target
+
 PHASE 2: ADAPT ░░░░░░░░░░ PENDING
 └── Tune behavioral response systems
 └── Environment interactivity
 └── Vocal feedback loop: [CLASSIFIED]
+
 PHASE 3: GENERATE ░░░░░░░░░░ LOCKED
 └── Autonomous asset creation
 └── Novel target variants
 └── Self-patching deployment loop
+```
 ## TECHNICAL SPECIFICATIONS
 ENGINE:         [REDACTED] — open source, community-maintained
 FORMAT:         pk3 container
@@ -59,12 +63,14 @@ This operation builds upon the work of several prior field teams whose contribut
 4. Contributions welcome — submit field reports via PR.
 
 ## INTEL FEED
+```
 [██████████] SIGNAL INTERCEPT
 DATE:    2026.05.25
 STATUS:  Assembling loadout
 NEXT:    First subject extraction test
 NOTE:    "Squeal for me." — [OPERATOR CALLSIGN REDACTED]
 ---
+```
 
 <div align="center">
 
