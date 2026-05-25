@@ -1,0 +1,192 @@
+// PROJECT BACON-GIB: Execution System v0.1
+
+class BaconGoreHandler : EventHandler
+{
+    override void WorldThingDamaged(WorldEvent e)
+    {
+        if (!e.Thing || !e.Thing.bIsMonster) return;
+        if (e.Thing.Health > 0 && e.Thing.Health <= e.Thing.SpawnHealth() * 0.40)
+        {
+            if (!e.Thing.FindInventory("BaconStaggerToken"))
+            {
+                e.Thing.GiveInventory("BaconStaggerToken", 1);
+                Console.Printf("BACON: %s STAGGERED at %d HP", e.Thing.GetClassName(), e.Thing.Health);
+                e.Thing.Speed = e.Thing.Speed * 0.2;
+                e.Thing.bNoPain = false;
+                e.Thing.SetStateLabel("Pain");
+            }
+        }
+    }
+
+    override void WorldThingDied(WorldEvent e)
+    {
+        if (!e.Thing || !e.Thing.bIsMonster) return;
+
+        bool wasStaggered = e.Thing.FindInventory("BaconStaggerToken") != null;
+
+        bool wasMeleeKill = false;
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (playeringame[i] && players[i].mo)
+            {
+                double dist = e.Thing.Distance3D(players[i].mo);
+                if (dist < 128) { wasMeleeKill = true; break; }
+            }
+        }
+
+        Console.Printf("BACON: %s DIED | Staggered: %d | MeleeRange: %d | HP: %d", e.Thing.GetClassName(), wasStaggered, wasMeleeKill, e.Thing.Health);
+
+        Vector3 pos = e.Thing.Pos;
+        double h = e.Thing.Height;
+
+        if (wasStaggered && wasMeleeKill)
+        {
+            Console.Printf("BACON: EXECUTION TRIGGERED!");
+
+            // Replace the death entirely - gib the corpse
+            e.Thing.bNoGravity = true;
+            e.Thing.A_SetRenderStyle(0.0, STYLE_None);
+
+            for (int i = 0; i < 12; i++)
+            {
+                let gib = Actor.Spawn("BaconMeatChunk", (pos.x + frandom(-16, 16), pos.y + frandom(-16, 16), pos.z + frandom(16, 48)));
+                if (gib)
+                {
+                    gib.Vel = (frandom(-12, 12), frandom(-12, 12), frandom(4, 18));
+                    gib.Angle = frandom(0, 360);
+                    gib.Scale = (frandom(0.8, 1.5), frandom(0.8, 1.5));
+                }
+            }
+
+            let head = Actor.Spawn("BaconSeveredHead", (pos.x, pos.y, pos.z + h * 0.8));
+            if (head)
+            {
+                head.Vel = (frandom(-5, 5), frandom(-5, 5), frandom(10, 20));
+                head.Scale = (1.5, 1.5);
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                Actor.Spawn("BaconBloodBurst", (pos.x + frandom(-8, 8), pos.y + frandom(-8, 8), pos.z + frandom(16, 40)));
+            }
+
+            e.Thing.A_PlaySound("misc/gibbed", CHAN_BODY);
+            return;
+        }
+
+        // Regular overkill
+        if (e.Thing.Health < -30)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                let gib = Actor.Spawn("BaconMeatChunk", (pos.x, pos.y, pos.z + 32));
+                if (gib)
+                {
+                    gib.Vel = (frandom(-8, 8), frandom(-8, 8), frandom(4, 12));
+                }
+            }
+        }
+
+        // Random dismemberment
+        if (frandom(0, 1.0) > 0.4)
+        {
+            let head = Actor.Spawn("BaconSeveredHead", (pos.x, pos.y, pos.z + h * 0.8));
+            if (head)
+            {
+                head.Vel = (frandom(-4, 4), frandom(-4, 4), frandom(6, 14));
+            }
+        }
+    }
+}
+
+class BaconStaggerToken : Inventory
+{
+    Default
+    {
+        Inventory.MaxAmount 1;
+        +INVENTORY.UNDROPPABLE;
+    }
+}
+
+class BaconMeatChunk : Actor
+{
+    Default
+    {
+        Radius 4;
+        Height 4;
+        Mass 5;
+        Scale 1.0;
+        Gravity 0.5;
+        +NOBLOCKMAP;
+        +MISSILE;
+        +NOTELEPORT;
+        +MOVEWITHSECTOR;
+        +THRUACTORS;
+        +FORCEXYBILLBOARD;
+        +ROLLSPRITE;
+        BounceType "Doom";
+        BounceFactor 0.3;
+        BounceCount 3;
+    }
+    States
+    {
+    Spawn:
+        XME1 ABCD 2 A_SetRoll(roll + 15);
+        Loop;
+    Death:
+        XME1 E 3;
+        XME1 E -1;
+        Stop;
+    }
+}
+
+class BaconBloodBurst : Actor
+{
+    Default
+    {
+        +NOBLOCKMAP;
+        +NOGRAVITY;
+        +NOINTERACTION;
+        Scale 2.0;
+        RenderStyle "Translucent";
+        Alpha 0.9;
+    }
+    States
+    {
+    Spawn:
+        BLOD ABCDE 2;
+        Stop;
+    }
+}
+
+class BaconSeveredHead : Actor
+{
+    Default
+    {
+        Radius 6;
+        Height 6;
+        Mass 10;
+        Scale 1.2;
+        Gravity 0.4;
+        +NOBLOCKMAP;
+        +MISSILE;
+        +NOTELEPORT;
+        +MOVEWITHSECTOR;
+        +THRUACTORS;
+        +FORCEXYBILLBOARD;
+        +ROLLSPRITE;
+        BounceType "Doom";
+        BounceFactor 0.2;
+        BounceCount 2;
+    }
+    States
+    {
+    Spawn:
+        XME2 ABCD 2 A_SetRoll(roll + 10);
+        Loop;
+    Death:
+        XME2 E 3;
+        XME2 E -1;
+        Stop;
+    }
+}
