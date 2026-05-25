@@ -2,15 +2,26 @@
 
 class BaconGoreHandler : EventHandler
 {
+    bool fistGiven;
+
+    override void WorldLoaded(WorldEvent e)
+    {
+        fistGiven = false;
+    }
+
     override void WorldTick()
     {
-        for (int i = 0; i < MAXPLAYERS; i++)
+        if (!fistGiven)
         {
-            if (playeringame[i] && players[i].mo)
+            for (int i = 0; i < MAXPLAYERS; i++)
             {
-                if (!players[i].mo.FindInventory("BaconDukeFist"))
+                if (playeringame[i] && players[i].mo)
                 {
-                    players[i].mo.GiveInventory("BaconDukeFist", 1);
+                    if (!players[i].mo.FindInventory("BaconDukeFist"))
+                    {
+                        players[i].mo.GiveInventory("BaconDukeFist", 1);
+                    }
+                    fistGiven = true;
                 }
             }
         }
@@ -55,15 +66,34 @@ class BaconGoreHandler : EventHandler
         {
             Console.Printf("BACON: EXECUTION TRIGGERED!");
 
+            for (int i = 0; i < MAXPLAYERS; i++)
+            {
+                if (playeringame[i] && players[i].mo)
+                {
+                    double pdist = e.Thing.Distance3D(players[i].mo);
+                    if (pdist < 128)
+                    {
+                        players[i].mo.A_SetBlend("FF0000", 0.8, 20);
+                        players[i].mo.Vel = (0, 0, 0);
+                    }
+                }
+            }
+
             e.Thing.bNoGravity = true;
             e.Thing.A_SetRenderStyle(0.0, STYLE_None);
 
-            for (int i = 0; i < 12; i++)
+            string cls = e.Thing.GetClassName();
+            bool isPigCop = (cls == "PigCop" || cls == "PigCopMagnum" || cls == "PigBrute");
+
+            int gibCount = isPigCop ? 16 : 12;
+            double gibForce = isPigCop ? 16.0 : 12.0;
+
+            for (int i = 0; i < gibCount; i++)
             {
                 let gib = Actor.Spawn("BaconMeatChunk", (pos.x + frandom(-16, 16), pos.y + frandom(-16, 16), pos.z + frandom(16, 48)));
                 if (gib)
                 {
-                    gib.Vel = (frandom(-12, 12), frandom(-12, 12), frandom(4, 18));
+                    gib.Vel = (frandom(-gibForce, gibForce), frandom(-gibForce, gibForce), frandom(4, 20));
                     gib.Angle = frandom(0, 360);
                     gib.Scale = (frandom(0.8, 1.5), frandom(0.8, 1.5));
                 }
@@ -73,15 +103,24 @@ class BaconGoreHandler : EventHandler
             if (head)
             {
                 head.Vel = (frandom(-5, 5), frandom(-5, 5), frandom(10, 20));
-                head.Scale = (1.5, 1.5);
+                if (isPigCop)
+                {
+                    head.Scale = (2.0, 2.0);
+                }
+                else
+                {
+                    head.Scale = (1.5, 1.5);
+                }
             }
 
-            for (int i = 0; i < 3; i++)
+            int bloodCount = isPigCop ? 5 : 3;
+            for (int i = 0; i < bloodCount; i++)
             {
                 Actor.Spawn("BaconBloodBurst", (pos.x + frandom(-8, 8), pos.y + frandom(-8, 8), pos.z + frandom(16, 40)));
             }
 
             e.Thing.A_PlaySound("misc/gibbed", CHAN_BODY);
+            e.Thing.A_PlaySound("bacon/execution", CHAN_VOICE, 1.0);
             return;
         }
 

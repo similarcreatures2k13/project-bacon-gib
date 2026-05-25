@@ -1,0 +1,9 @@
+bacon/exec1 SOUNDS/DUKE/GETSOM1A
+bacon/exec2 SOUNDS/DUKE/HAIL01
+bacon/exec3 SOUNDS/DUKE/DIESOB03
+bacon/exec4 SOUNDS/DUKE/EATSHT01
+bacon/exec5 SOUNDS/DUKE/GROOVY02
+bacon/exec6 SOUNDS/DUKE/BLOWIT01
+bacon/exec7 SOUNDS/DUKE/COOL010
+
+$random bacon/execution { bacon/exec1 bacon/exec2 bacon/exec3 bacon/exec4 bacon/exec5 bacon/exec6 bacon/exec7 }
