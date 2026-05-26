@@ -21,6 +21,16 @@ An operative discovered that certain... *subjects*... were not receiving the tre
 
 This project rectifies that oversight.
 
+## FIELD EVIDENCE
+
+<div align="center">
+
+![CLASSIFIED](docs/classified_preview.png)
+
+*Field capture from active extraction. Details redacted.*
+
+</div>
+
 ## OPERATIONAL STATUS
 ```
 PHASE 1: ASSEMBLE ████████░░ 80%
