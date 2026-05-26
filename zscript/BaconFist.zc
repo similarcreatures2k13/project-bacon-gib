@@ -119,15 +119,24 @@ class BaconDukeFist : Weapon
     ExecHold:
         G000 A 0
         {
+            if (random(0,1) == 1)
+            {
+                return ResolveState("ExecHold2");
+            }
+            return ResolveState(null);
+        }
+        G000 A 0
+        {
             if (invoker.grabTarget)
             {
                 let mo = invoker.grabTarget;
                 mo.Vel = (0, 0, 0);
                 mo.Speed = 0;
-                mo.bNOPAIN = true;
                 mo.bINCOMBAT = true;
                 mo.bSTANDSTILL = true;
-                mo.Tics = -1;
+                mo.bNOPAIN = true;
+                let ds = mo.FindState("Death");
+                if (ds) { mo.SetState(ds); mo.Tics = -1; }
             }
             invoker.savedAngle = angle;
             invoker.savedPitch = pitch;
@@ -234,6 +243,136 @@ class BaconDukeFist : Weapon
         G000 L 5;
         G000 M 5;
         G000 N 5
+        {
+            invoker.grabTarget = null;
+        }
+        Goto Ready;
+    ExecHold2:
+        G001 A 0
+        {
+            if (invoker.grabTarget)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.Speed = 0;
+                mo.bINCOMBAT = true;
+                mo.bSTANDSTILL = true;
+                mo.bNOPAIN = true;
+                let ds = mo.FindState("Death");
+                if (ds) { mo.SetState(ds); mo.Tics = -1; }
+            }
+            invoker.savedAngle = angle;
+            invoker.savedPitch = pitch;
+        }
+        G001 A 2
+        {
+            A_PlaySound("bacon/execution", CHAN_VOICE, 1.0);
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G001 B 2
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G001 C 2
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G001 D 2
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G001 E 8
+        {
+            A_SetBlend("FF0000", 0.4, 35);
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            Console.Printf("BACON: GRABBING...");
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.A_SpawnItemEx("BaconBloodBurst", 0, 0, 24);
+                mo.A_SpawnItemEx("BaconBloodBurst", 0, 0, 32);
+            }
+        }
+        G001 F 8
+        {
+            A_PlaySound("misc/gibbed", CHAN_BODY);
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.A_SpawnItemEx("BaconBloodBurst", 0, 0, 16);
+            }
+        }
+        G001 G 8
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.A_SpawnItemEx("BaconMeatChunk", 0, 0, 32, frandom(-6,6), frandom(-6,6), frandom(4,10));
+                mo.A_SpawnItemEx("BaconMeatChunk", 0, 0, 24, frandom(-6,6), frandom(-6,6), frandom(4,10));
+            }
+        }
+        G001 H 8
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            Console.Printf("BACON: RIPPING...");
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.Vel = (0, 0, 0);
+                mo.A_SpawnItemEx("BaconMeatChunk", 0, 0, 40, frandom(-6,6), frandom(-6,6), frandom(4,10));
+                mo.A_SpawnItemEx("BaconBloodBurst", 0, 0, 20);
+            }
+        }
+        G001 I 6
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G001 J 6
+        {
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+        }
+        G001 K 0
+        {
+            if (invoker.grabTarget)
+            {
+                let mo = invoker.grabTarget;
+                mo.bSTANDSTILL = false;
+                mo.bNOPAIN = false;
+                mo.bINCOMBAT = false;
+                mo.Tics = 1;
+            }
+        }
+        G001 K 6
+        {
+            A_SetBlend("FF0000", 0.9, 25);
+            A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
+            A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
+            if (invoker.grabTarget && invoker.grabTarget.Health > 0)
+            {
+                let mo = invoker.grabTarget;
+                mo.DamageMobj(self, self, 50000, "BaconExecution");
+            }
+            A_PlaySound("duke/kick", CHAN_BODY);
+            Console.Printf("BACON: TORN APART!");
+        }
+        G001 L 5;
+        G001 M 5;
+        G001 N 5
         {
             invoker.grabTarget = null;
         }
