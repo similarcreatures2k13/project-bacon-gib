@@ -1,1 +1,2 @@
-addslot 0 BaconDukeFist
+setslot 1 "MightyBoot" "BaconDukeFist"
+defaultbind F "use BaconDukeFist"

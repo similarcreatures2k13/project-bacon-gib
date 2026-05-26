@@ -8,7 +8,6 @@ class BaconDukeFist : Weapon
     Default
     {
         Weapon.SelectionOrder 22;
-        Weapon.SlotNumber 0;
         Weapon.Kickback 80;
         Obituary "%k ripped %o apart.";
         +WEAPON.NOALERT;
@@ -135,7 +134,7 @@ class BaconDukeFist : Weapon
         }
         G000 A 2
         {
-            A_PlaySound("duke/kick", CHAN_BODY);
+            A_PlaySound("bacon/execution", CHAN_VOICE, 1.0);
             A_SetAngle(invoker.savedAngle, SPF_INTERPOLATE);
             A_SetPitch(invoker.savedPitch, SPF_INTERPOLATE);
         }
@@ -229,7 +228,7 @@ class BaconDukeFist : Weapon
                 mo.Tics = 1;
                 mo.DamageMobj(self, self, 50000, "BaconExecution");
             }
-            A_PlaySound("bacon/execution", CHAN_VOICE, 1.0);
+            A_PlaySound("duke/kick", CHAN_BODY);
             Console.Printf("BACON: TORN APART!");
         }
         G000 L 5;
