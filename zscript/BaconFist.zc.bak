@@ -137,9 +137,6 @@ class BaconDukeFist : Weapon
                 mo.bNOPAIN = true;
                 let ds = mo.FindState("Death");
                 if (ds) { mo.SetState(ds); mo.Tics = -1; }
-                let ex = Actor.Spawn("BaconPigExec1", mo.Pos);
-                if (ex) { ex.angle = invoker.owner.angle + 180; }
-                mo.bINVISIBLE = true;
             }
             invoker.savedAngle = angle;
             invoker.savedPitch = pitch;
@@ -237,7 +234,6 @@ class BaconDukeFist : Weapon
             {
                 let mo = invoker.grabTarget;
                 mo.bNOPAIN = false;
-                mo.bINVISIBLE = false;
                 mo.bINCOMBAT = false;
                 mo.bSTANDSTILL = false;
                 mo.Tics = 1;
@@ -271,9 +267,6 @@ class BaconDukeFist : Weapon
                 mo.bNOPAIN = true;
                 let ds = mo.FindState("Death");
                 if (ds) { mo.SetState(ds); mo.Tics = -1; }
-                let ex2 = Actor.Spawn("BaconPigExec1", mo.Pos);
-                if (ex2) { ex2.angle = invoker.owner.angle + 180; }
-                mo.bINVISIBLE = true;
             }
             invoker.savedAngle = angle;
             invoker.savedPitch = pitch;
@@ -367,7 +360,6 @@ class BaconDukeFist : Weapon
                 let mo = invoker.grabTarget;
                 mo.bSTANDSTILL = false;
                 mo.bNOPAIN = false;
-                mo.bINVISIBLE = false;
                 mo.bINCOMBAT = false;
                 mo.Tics = 1;
             }

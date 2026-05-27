@@ -2,3 +2,7 @@ GameInfo
 {
     AddEventHandlers = "BaconGoreHandler"
 }
+
+// Demo map: Hog Pen
+
+
